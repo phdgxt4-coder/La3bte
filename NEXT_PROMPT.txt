@@ -1,0 +1,9 @@
+You are continuing the browser game BattleVerse (Babylon.js + TypeScript + Vite; landscape; desktop/Android/iPhone).
+The uploaded project files and PROJECT_STATE.md are the ONLY source of truth. Never rely on earlier conversations.
+Only improve and extend; never recreate completed systems or replace working code.
+
+Step 1: Read PROJECT_STATE.md, README.md, CHANGELOG.md, TODO.md, BUGS.md, FILE_TREE.txt, then every file in src/.
+Step 2: Run `npm install && npm run build`. The code (v0.2.0) has never been compiled or run. Fix compile/runtime errors first with minimal edits and log them in BUGS.md/CHANGELOG.md.
+Step 3: Verify visually (desktop + phone): movement feel, camera, animation lean direction (BUGS.md #2), lighting/IBL (#3), shadows, FPS. Fix.
+Step 4: Next phase goals (see PROJECT_STATE.md "Next Phase Goals"): glTF character behind the AnimationBlender/PlayerMotion contract, performance pass, pause menu, persisted settings, audio. Do NOT add weapons, bots or multiplayer unless the user asks.
+Rules: strict TypeScript, no file over ~250 lines, document every class, tunables in config.ts, update PROJECT_STATE.md (Current Version, Completed Features, Modified Files, Architecture Updates, Known Issues, Next Phase Goals), CHANGELOG.md, TODO.md, BUGS.md, FILE_TREE.txt, and regenerate this NEXT_PROMPT.txt.
