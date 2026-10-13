@@ -13,6 +13,8 @@ import { CameraShake } from "./CameraShake";
 export class ThirdPersonCamera {
   readonly camera: FreeCamera;
   yaw = 0; sensitivity = 1; baseZoom = 1;
+  /** 0..1 aim-down-sights amount (narrower FOV, closer camera, slower look). */
+  aim = 0;
   private pitch = 0.25; private smYaw = 0; private smPitch = 0.25;
   private pivot = new Vector3(); private dist = CONFIG.camera.distance; private hitDist = Infinity;
   private zoomT = 1; private zoom = 1; private fov = CONFIG.camera.fov;
@@ -28,11 +30,14 @@ export class ThirdPersonCamera {
     this.pivot.copyFrom(target.position);
   }
 
+  /** Weapon recoil: raises the view by `a` radians. */
+  kick(a: number): void { this.pitch = clamp(this.pitch - a, CONFIG.camera.minPitch, CONFIG.camera.maxPitch); }
+
   /** Landing impact 0..1 -> shake. */
   impact(amount: number): void { this.shake.add(amount * CONFIG.camera.landShake); }
 
   update(dt: number, look: { x: number; y: number }, zoomDelta: number): void {
-    const c = CONFIG.camera, m = this.motion, s = c.baseSens * this.sensitivity;
+    const c = CONFIG.camera, m = this.motion, s = c.baseSens * this.sensitivity * (1 - 0.4 * this.aim);
     this.yaw += look.x * s;
     this.pitch = clamp(this.pitch + look.y * s, c.minPitch, c.maxPitch);
     this.smYaw = damp(this.smYaw, this.yaw, 25, dt); this.smPitch = damp(this.smPitch, this.pitch, 25, dt);
@@ -49,7 +54,7 @@ export class ThirdPersonCamera {
     this.pivot.y = damp(this.pivot.y, goal.y + c.height, 12, dt);
 
     // Dynamic distance + collision (ray every 2nd frame; result cached).
-    const want = c.distance * this.zoom + 0.5 * m.speedNorm + 0.4 * m.sprintT;
+    const want = (c.distance * this.zoom + 0.5 * m.speedNorm + 0.4 * m.sprintT) * (1 - 0.3 * this.aim);
     if ((this.frame++ & 1) === 0) {
       this.ray.origin.copyFrom(this.pivot); this.ray.direction.copyFrom(dir).scaleInPlace(-1); this.ray.length = want + c.collisionPad;
       const hit = this.scene.pickWithRay(this.ray, ThirdPersonCamera.occluders);
@@ -70,7 +75,7 @@ export class ThirdPersonCamera {
     p.y += bob + breath + this.shake.out.y;
     p.y = Math.max(p.y, heightAt(p.x, p.z) + 0.35);
 
-    this.fov = damp(this.fov, c.fov + c.fovSprint * m.sprintT, 6, dt); this.camera.fov = this.fov;
+    this.fov = damp(this.fov, c.fov - 0.28 * this.aim + c.fovSprint * m.sprintT * (1 - this.aim), 8, dt); this.camera.fov = this.fov;
     this.camera.rotation.set(this.smPitch + breath * 0.2 + this.shake.out.y * 0.3, this.smYaw + this.shake.out.x * 0.3, this.shake.out.roll);
   }
 }

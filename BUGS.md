@@ -1,10 +1,12 @@
 # BUGS / RISKS (none confirmed by running; all unverified)
-1. Build never run: possible TypeScript/Babylon API mismatches (check CascadedShadowGenerator props, SSAO2 options, ReflectionProbe usage, thinInstance calls).
-2. AnimationBlender: body roll sign (lean into vs away from turn) and limb swing direction not visually verified.
-3. ReflectionProbe cube used as `scene.environmentTexture` may need prefiltering/mip settings; PBR may look too bright/dark.
-4. Roof template (custom prism) uses two-sided lighting; winding/normals unverified.
-5. CSM `shadowMaxZ` set in World.bindCamera; cascades may need tuning.
-6. SSAO2 skipped on WebGPU and mobile by design.
-7. iOS ignores orientation lock/fullscreen; rotate overlay is the fallback.
-8. Camera collision ray runs every 2nd frame: at very high speed may clip for 1 frame.
-9. Player can stand on tree trunks/rocks (they are `solid`); no slope limit on terrain rim.
+1. Build never run: possible TS/Babylon API mismatches (peerjs import, CascadedShadowGenerator, SSAO2, ReflectionProbe, thin instances).
+2. Arm/leg rotation sign assumed: negative rotation.x = arms forward. If arms point backwards when holding the rifle, flip signs in WeaponPose.ts / AnimationBlender.ts.
+3. WebRTC without TURN fails on some mobile networks / strict NAT; room join may time out (12 s).
+4. Host phone locking screen or switching tab may freeze the room (Wake Lock requested but not guaranteed).
+5. PeerJS public broker availability is outside our control.
+6. Muzzle flash light does not affect frozen PBR materials (frozen before the light exists).
+7. No lag compensation: client hits judged on host positions (15 Hz interpolated).
+8. Watch tower stairs: steps are 0.42 m, may need a jump; ground detection uses one ray.
+9. Bots ignore each other's cover and cannot climb stairs; they can clip through trees.
+10. Quick Match is offline (bots only).
+11. Stale PeerJS id: refreshing the host page frees the code; clients need a new link.

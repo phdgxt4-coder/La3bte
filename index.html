@@ -7,33 +7,66 @@
 html,body{margin:0;height:100%;overflow:hidden;background:#0b0f1a;font-family:system-ui,sans-serif;color:#fff}
 #c{width:100%;height:100%;display:block;outline:none}
 .hidden{display:none!important}
-#menu,#settings,#rotate{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 40%,#1c2a4aee,#070a12f2)}
-#rotate{z-index:99;background:#070a12;text-align:center}
-h1{font-size:clamp(36px,9vh,72px);margin:0;letter-spacing:.12em;background:linear-gradient(90deg,#6cf,#c6f);-webkit-background-clip:text;color:transparent}
-button{font:600 18px system-ui;color:#fff;background:#ffffff1f;border:1px solid #ffffff44;border-radius:14px;padding:12px 34px;min-width:200px;backdrop-filter:blur(8px)}
+.panel{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(circle at 50% 40%,#1c2a4acc,#070a12e6);padding:12px}
+#rotate{position:fixed;inset:0;z-index:99;background:#070a12;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+h1{font-size:clamp(34px,9vh,70px);margin:0;letter-spacing:.12em;background:linear-gradient(90deg,#6cf,#c6f);-webkit-background-clip:text;color:transparent}
+h2{margin:0;font-size:clamp(20px,5vh,30px)}
+button{font:600 17px system-ui;color:#fff;background:#ffffff1f;border:1px solid #ffffff44;border-radius:14px;padding:11px 30px;min-width:200px;backdrop-filter:blur(8px)}
 button.primary{background:linear-gradient(90deg,#2b8cff,#8a4dff);border:0}
+button.danger{background:#a8323e;border:0}
+input[type=text],#code-in,#room-link{font:600 18px monospace;text-align:center;padding:10px;border-radius:12px;border:1px solid #ffffff44;background:#0008;color:#fff;width:min(300px,70vw);user-select:text;touch-action:auto}
+.row{display:flex;gap:10px;align-items:center}
 label{display:flex;gap:12px;align-items:center;min-width:300px;justify-content:space-between}
-#fps,#ver{position:fixed;top:calc(8px + env(safe-area-inset-top));font:12px monospace;background:#0008;padding:3px 8px;border-radius:6px}
-#fps{left:calc(8px + env(safe-area-inset-left))}#ver{right:calc(8px + env(safe-area-inset-right));opacity:.7}
+#players{min-width:240px;text-align:left;font-size:16px;line-height:1.6;max-height:30vh;overflow:auto}
+#fps,#ver{position:fixed;top:calc(6px + env(safe-area-inset-top));font:11px monospace;background:#0007;padding:2px 7px;border-radius:6px;z-index:5}
+#fps{left:calc(6px + env(safe-area-inset-left))}#ver{right:calc(6px + env(safe-area-inset-right));opacity:.7}
 #loading{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#070a12;transition:opacity .5s}
 #loading.done{opacity:0;pointer-events:none}
 #load-track{width:min(320px,60vw);height:4px;background:#ffffff22;border-radius:4px;overflow:hidden}
 #load-bar{height:100%;width:0;background:linear-gradient(90deg,#2b8cff,#8a4dff);transition:width .2s}
-#touch{position:fixed;inset:0;pointer-events:none}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:4}
+#cross{position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%)}
+#cross:before,#cross:after{content:"";position:absolute;background:#fff;box-shadow:0 0 3px #000}
+#cross:before{left:10px;top:0;width:2px;height:22px;-webkit-mask:linear-gradient(#000 35%,transparent 35% 65%,#000 65%)}
+#cross:after{top:10px;left:0;height:2px;width:22px;-webkit-mask:linear-gradient(90deg,#000 35%,transparent 35% 65%,#000 65%)}
+#hitm{position:absolute;left:50%;top:50%;width:30px;height:30px;transform:translate(-50%,-50%) rotate(45deg);border:2px solid #ff4d4d;opacity:0}
+#hitm.on{opacity:1}
+#hpbox{position:absolute;left:calc(14px + env(safe-area-inset-left));bottom:14px;width:min(240px,34vw)}
+#hp{height:12px;background:#0008;border-radius:8px;overflow:hidden;border:1px solid #fff4}
+#hp-fill{height:100%;width:100%;background:linear-gradient(90deg,#e74c3c,#2ecc71)}
+#hp-text{font:700 14px monospace;margin-bottom:3px}
+#ammo{position:absolute;right:calc(14px + env(safe-area-inset-right));top:calc(34px + env(safe-area-inset-top));font:700 22px monospace;text-shadow:0 0 4px #000}
+#status{position:absolute;top:calc(34px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);font:700 16px system-ui;text-shadow:0 0 4px #000}
+#remain{position:absolute;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);font:700 13px monospace;background:#0008;padding:3px 10px;border-radius:8px}
+#roomtag{position:absolute;top:calc(8px + env(safe-area-inset-top));left:calc(90px + env(safe-area-inset-left));font:600 12px monospace;opacity:.8}
+#feed{position:absolute;left:calc(14px + env(safe-area-inset-left));top:calc(50px + env(safe-area-inset-top));font:13px monospace;text-shadow:0 0 3px #000}
+#elim{position:absolute;left:50%;top:22%;transform:translateX(-50%);font:800 28px system-ui;color:#ff6b6b;text-shadow:0 0 6px #000}
+#dmg{position:absolute;inset:0;box-shadow:inset 0 0 120px #f00;opacity:0;transition:opacity .15s}#dmg.on{opacity:.8}
+#res-title{font-size:clamp(40px,12vh,90px);margin:0}#res-title.win{color:#ffd54a;background:none;-webkit-text-fill-color:#ffd54a}#res-title.lose{color:#ff6b6b;background:none;-webkit-text-fill-color:#ff6b6b}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;padding:10px 18px;border-radius:12px;opacity:0;transition:opacity .2s;z-index:60;pointer-events:none}#toast.on{opacity:1}
+#touch{position:fixed;inset:0;pointer-events:none;z-index:6}
 #joy{position:absolute;left:6%;bottom:12%;width:130px;height:130px;border-radius:50%;background:#ffffff18;border:2px solid #ffffff44}
 #knob{position:absolute;left:35px;top:35px;width:60px;height:60px;border-radius:50%;background:#ffffff66}
-.tb{position:absolute;pointer-events:auto;min-width:0;width:76px;height:76px;border-radius:50%;padding:0;font-size:13px}
-#btn-jump{right:7%;bottom:14%}#btn-sprint{right:19%;bottom:8%}
+.tb{position:absolute;pointer-events:auto;min-width:0;width:68px;height:68px;border-radius:50%;padding:0;font-size:12px}
+#btn-fire{right:5%;bottom:18%;width:92px;height:92px;background:#d9363ecc;font-size:14px}
+#btn-aim{right:19%;bottom:34%}#btn-jump{right:19%;bottom:12%}#btn-reload{right:30%;bottom:22%}#btn-sprint{left:4%;bottom:52%}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="touch" class="hidden"><div id="joy"><div id="knob"></div></div><button class="tb" id="btn-sprint">SPRINT</button><button class="tb" id="btn-jump">JUMP</button></div>
+<div id="hud" class="hidden"><div id="cross"></div><div id="hitm"></div><div id="dmg"></div>
+<div id="remain">ALIVE 0</div><div id="roomtag"></div><div id="status"></div><div id="ammo"></div><div id="feed"></div><div id="elim" class="hidden">ELIMINATED</div>
+<div id="hpbox"><div id="hp-text">100</div><div id="hp"><div id="hp-fill"></div></div></div></div>
+<div id="touch" class="hidden"><div id="joy"><div id="knob"></div></div>
+<button class="tb" id="btn-sprint">SPRINT</button><button class="tb" id="btn-jump">JUMP</button><button class="tb" id="btn-aim">AIM</button><button class="tb" id="btn-reload">RELOAD</button><button class="tb" id="btn-fire">FIRE</button></div>
 <div id="fps">-- FPS</div><div id="ver"></div>
-<div id="menu"><h1>BATTLEVERSE</h1><button class="primary" id="play">PLAY</button><button id="open-settings">SETTINGS</button><small id="backend"></small></div>
-<div id="settings" class="hidden"><h1 style="font-size:32px">SETTINGS</h1>
+<div id="menu" class="panel"><h1>BATTLEVERSE</h1><button class="primary" id="b-quick">QUICK MATCH</button><button id="b-private">PRIVATE MATCH</button><button id="b-settings">SETTINGS</button><small id="backend"></small></div>
+<div id="private" class="panel hidden"><h2>PRIVATE MATCH</h2><button class="primary" id="b-create">CREATE ROOM</button><div class="row"><input id="code-in" maxlength="5" placeholder="ROOM CODE" autocapitalize="characters"><button id="b-join" style="min-width:90px;padding:11px 16px">JOIN</button></div><button id="b-pback">BACK</button></div>
+<div id="lobby" class="panel hidden"><h2>ROOM <span id="room-code"></span></h2><input id="room-link" readonly><div class="row"><button id="b-copy" style="min-width:120px">COPY LINK</button><button id="b-share" style="min-width:120px">SHARE</button></div><div id="players"></div><small id="lobby-hint"></small><button class="primary" id="b-start">START MATCH</button><button class="danger" id="b-end">END ROOM</button></div>
+<div id="settings" class="panel hidden"><h2>SETTINGS</h2>
 <label>Camera sensitivity <input id="sens" type="range" min="0.3" max="2.5" step="0.05" value="1"></label>
 <label>Camera distance <input id="dist" type="range" min="0.6" max="1.6" step="0.05" value="1"></label>
-<label>Render scale <input id="scale" type="range" min="0.5" max="1" step="0.05" value="1"></label>
-<button id="close-settings">BACK</button></div>
+<label>Render scale <input id="scale" type="range" min="0.5" max="1" step="0.05" value="1"></label><button id="b-sback">BACK</button></div>
+<div id="result" class="panel hidden"><h1 id="res-title"></h1><p id="res-sub"></p><button class="primary" id="b-continue">CONTINUE</button></div>
 <div id="loading"><h1>BATTLEVERSE</h1><div id="load-track"><div id="load-bar"></div></div><small id="load-text">Starting…</small></div>
-<div id="rotate"><h1 style="font-size:28px">ROTATE YOUR DEVICE</h1><p>BattleVerse runs in landscape.</p></div>
+<div id="rotate"><h2>ROTATE YOUR DEVICE</h2><p>BattleVerse runs in landscape.</p></div>
+<div id="toast"></div>
 <script type="module" src="/main.ts"></script></body></html>

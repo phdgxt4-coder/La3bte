@@ -22,6 +22,11 @@ export class PlayerController {
   private coyote = 0; private jumpBuf = 0; private prevJump = false; private recover = 0;
   private ray = new Ray(Vector3.Zero(), Vector3.Down(), 1);
   private anim: AnimationBlender;
+  readonly rig: LimbRig;
+  /** Called after procedural animation each frame (weapon pose override). */
+  onPostAnim?: (rig: LimbRig) => void;
+  /** When set, the character faces this yaw (aiming/shooting) instead of the movement direction. */
+  facingYaw: number | null = null;
   private static solidOnly = (m: AbstractMesh): boolean => m.metadata?.solid === true;
 
   constructor(private scene: Scene, spawn: Vector3) {
@@ -31,7 +36,7 @@ export class PlayerController {
     this.collider.ellipsoid = new Vector3(p.radius, p.height / 2, p.radius);
     this.collider.position.set(spawn.x, heightAt(spawn.x, spawn.z) + p.height / 2, spawn.z);
     this.root = new TransformNode("player", scene);
-    this.anim = new AnimationBlender(this.buildRig());
+    this.rig = this.buildRig(); this.anim = new AnimationBlender(this.rig);
     this.syncVisual();
   }
 
@@ -92,8 +97,9 @@ export class PlayerController {
     // Facing: velocity direction when moving, otherwise the intended direction (turn-in-place).
     const fx = hs > 0.5 ? this.vel.x : tx, fz = hs > 0.5 ? this.vel.z : tz;
     let turn = 0;
-    if (Math.hypot(fx, fz) > 0.1) {
-      const step = angleDelta(this.yaw, Math.atan2(fx, fz)) * (1 - Math.exp(-(this.grounded ? p.turnRate : p.turnRate * 0.35) * dt));
+    const faceYaw = this.facingYaw ?? (Math.hypot(fx, fz) > 0.1 ? Math.atan2(fx, fz) : null);
+    if (faceYaw !== null) {
+      const step = angleDelta(this.yaw, faceYaw) * (1 - Math.exp(-(this.grounded ? p.turnRate : p.turnRate * 0.35) * dt));
       this.yaw += step; turn = step / Math.max(dt, 1e-4);
     }
     m.turnRate = damp(m.turnRate, turn, 12, dt);
@@ -108,6 +114,9 @@ export class PlayerController {
     }
     this.collider.moveWithCollisions(new Vector3(this.vel.x * dt, this.vy * dt, this.vel.z * dt));
 
+    const rr = Math.hypot(pos.x, pos.z), maxR = CONFIG.world.playRadius;
+    if (rr > maxR) { pos.x *= maxR / rr; pos.z *= maxR / rr; }
+
     // Ground resolve: snap down slopes while grounded, land when falling through the surface.
     const was = this.grounded, fall = this.vy, gy = this.groundY(pos.x, pos.z, pos.y);
     if (this.vy <= 0 && pos.y - p.height / 2 <= gy + (was ? p.snap : 0.03)) {
@@ -121,8 +130,14 @@ export class PlayerController {
     m.speed = hs; m.speedNorm = clamp(hs / p.sprint, 0, 1); m.grounded = this.grounded; m.vy = this.vy;
     m.sprintT = damp(m.sprintT, input.sprint && hs > p.run * 0.9 ? 1 : 0, 6, dt);
     m.landImpact *= Math.exp(-7 * dt);
-    this.anim.update(dt, m);
+    this.anim.update(dt, m); this.onPostAnim?.(this.rig);
     this.syncVisual();
+  }
+
+  /** Places the player at a spawn point, facing `yaw`, with all motion reset. */
+  teleport(x: number, z: number, yaw: number): void {
+    this.collider.position.set(x, heightAt(x, z) + CONFIG.player.height / 2, z);
+    this.vel.setAll(0); this.vy = 0; this.grounded = true; this.yaw = yaw; this.syncVisual();
   }
 
   private syncVisual(): void {

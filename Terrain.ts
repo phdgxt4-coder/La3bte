@@ -6,11 +6,17 @@ import { CONFIG } from "./config";
  * Analytic terrain height. Single source of truth for rendering, placement, player ground and camera clamp.
  * Flat village plateau (r<28) and flat road corridor; rolling hills outside; raised rim hides the world border.
  */
+/** Flattened build sites (warehouse, military base). */
+export const FLAT_SITES = [{ x: -50, z: 44, r: 20 }, { x: 44, z: -44, r: 22 }];
+
 export function heightAt(x: number, z: number): number {
   const r = Math.hypot(x, z);
   const hills = Math.sin(x * 0.035) * 2.2 + Math.cos(z * 0.03) * 2 + Math.sin((x + z) * 0.08) * 0.8 + Math.sin(x * 0.11) * Math.cos(z * 0.09) * 0.5;
   const outside = smoothstep(28, 60, r), roadFlat = smoothstep(5, 14, Math.abs(x));
-  return hills * outside * roadFlat + smoothstep(70, 125, r) * 8 * outside;
+  let site = 1;
+  for (const s of FLAT_SITES) site = Math.min(site, smoothstep(s.r, s.r + 14, Math.hypot(x - s.x, z - s.z)));
+  // Natural border: steep cliff ring (r 86..104) up to a high plateau; player is also radially clamped at playRadius.
+  return hills * outside * roadFlat * site + smoothstep(86, 104, r) * 18 * outside;
 }
 
 /** Builds the terrain mesh once (vertex-coloured grass/dirt/rock by slope), then freezes it. Not collidable: ground is analytic. */

@@ -7,13 +7,15 @@ import { buildTerrain } from "./Terrain";
 import { buildVillage } from "./Village";
 import { buildVegetation } from "./Vegetation";
 import { buildMountains } from "./Mountains";
+import { buildCompounds } from "./Compounds";
+import { computeSpawns } from "./Spawns";
 
 const tick = (): Promise<void> => new Promise(r => setTimeout(r, 0));
 const seeded = (seed: number) => { let s = seed; return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646; };
 
 /** World orchestrator: sky, lights, shadows (CSM on desktop), terrain, village, vegetation, mountains, reflection probe, bounds. Built asynchronously for the loading screen. */
 export class World {
-  private constructor(readonly shadow: ShadowCaster) {}
+  private constructor(readonly shadow: ShadowCaster, readonly spawns: Vector3[]) {}
 
   static async create(scene: Scene, onProgress: (p: number, text: string) => void): Promise<World> {
     const mobile = isMobile(), mats = new Materials(scene);
@@ -49,7 +51,7 @@ export class World {
 
     onProgress(0.2, "Terrain"); await tick();
     const terrain = buildTerrain(scene, mobile);
-    onProgress(0.4, "Village"); await tick(); buildVillage(ctx);
+    onProgress(0.4, "Village"); await tick(); buildVillage(ctx); buildCompounds(ctx); const spawns = computeSpawns(ctx);
     onProgress(0.6, "Vegetation"); await tick(); buildVegetation(ctx);
     onProgress(0.8, "Mountains"); await tick(); const far = buildMountains(scene, mats);
 
@@ -65,7 +67,7 @@ export class World {
     probe.renderList?.push(skybox, ...far, terrain); probe.position.set(0, 6, 0); probe.refreshRate = RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
     scene.environmentTexture = probe.cubeTexture; scene.environmentIntensity = 0.7;
     mats.freezeAll();
-    return new World(shadow);
+    return new World(shadow, spawns);
   }
 
   /** Call once the camera exists: limits cascade range for sharper shadows. */

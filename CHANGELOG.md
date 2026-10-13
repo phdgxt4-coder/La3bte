@@ -18,3 +18,9 @@
 
 ## 0.2.1 - Deployment
 - GitHub Actions workflow builds and publishes to GitHub Pages; Vite base "./"; build no longer blocks on type errors (`npm run typecheck` separate); .gitignore, ARCHITECTURE.md
+
+## 0.3.0 - Phase 3: playable shooter
+- Bounded map (cliffs + radial clamp), forest, warehouse, military base, watch tower, 16 spawns
+- Rifle: aim, shoot, reload, ammo, recoil, flash, tracers, shells, sounds, hitscan
+- Bot soldiers, Quick Match (15 players offline), Private rooms over WebRTC (code + link), free-for-all, victory/defeat
+- New menu, lobby, HUD, touch combat buttons

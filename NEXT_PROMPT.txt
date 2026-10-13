@@ -1,9 +1,8 @@
-You are continuing the browser game BattleVerse (Babylon.js + TypeScript + Vite; landscape; desktop/Android/iPhone).
-The uploaded project files and PROJECT_STATE.md are the ONLY source of truth. Never rely on earlier conversations.
-Only improve and extend; never recreate completed systems or replace working code.
+You are continuing the browser game BattleVerse (Babylon.js + TypeScript + Vite + PeerJS; landscape; desktop/Android/iPhone).
+The uploaded project files and PROJECT_STATE.md are the ONLY source of truth. Never rely on earlier conversations. Only improve/extend; never recreate completed systems or replace working code.
 
-Step 1: Read PROJECT_STATE.md, README.md, CHANGELOG.md, TODO.md, BUGS.md, FILE_TREE.txt, then every file in src/.
-Step 2: Run `npm install && npm run build`. The code (v0.2.0) has never been compiled or run. Fix compile/runtime errors first with minimal edits and log them in BUGS.md/CHANGELOG.md.
-Step 3: Verify visually (desktop + phone): movement feel, camera, animation lean direction (BUGS.md #2), lighting/IBL (#3), shadows, FPS. Fix.
-Step 4: Next phase goals (see PROJECT_STATE.md "Next Phase Goals"): glTF character behind the AnimationBlender/PlayerMotion contract, performance pass, pause menu, persisted settings, audio. Do NOT add weapons, bots or multiplayer unless the user asks.
-Rules: strict TypeScript, no file over ~250 lines, document every class, tunables in config.ts, update PROJECT_STATE.md (Current Version, Completed Features, Modified Files, Architecture Updates, Known Issues, Next Phase Goals), CHANGELOG.md, TODO.md, BUGS.md, FILE_TREE.txt, and regenerate this NEXT_PROMPT.txt.
+1. Read PROJECT_STATE.md, README.md, ARCHITECTURE.md, CHANGELOG.md, TODO.md, BUGS.md, FILE_TREE.txt, then every .ts file (flat layout: all in repo root).
+2. Run `npm install && npm run build`. The code (v0.3.0) has never been compiled or run: fix errors first, minimal edits, log in BUGS.md/CHANGELOG.md.
+3. Verify: gameplay (movement, aim, shoot, reload, bots), then a private room between two devices (code + link).
+4. Then do the "Exact Next Phase Objectives" in PROJECT_STATE.md. Do NOT add inventory/vehicles/new weapons unless asked.
+Rules: strict TypeScript, no file over ~250 lines, document classes, tunables in config.ts. At the end of EVERY phase deliver: (1) source package incl. docs, (2) GitHub Pages deployment (workflow builds it; keep `.github/workflows/deploy.yml`), (3) updated README, PROJECT_STATE (Current Version, Completed Features, Modified Files, Architecture Decisions, Known Issues, Performance Notes, Remaining Tasks, Exact Next Phase Objectives), CHANGELOG, TODO, BUGS, FILE_TREE, ARCHITECTURE, NEXT_PROMPT.

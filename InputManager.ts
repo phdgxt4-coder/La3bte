@@ -1,13 +1,13 @@
 /** Normalised per-frame input, identical for keyboard/mouse and touch. */
-export interface InputState { moveX: number; moveY: number; sprint: boolean; jump: boolean; walk: boolean }
+export interface InputState { moveX: number; moveY: number; sprint: boolean; jump: boolean; walk: boolean; fire: boolean; aim: boolean }
 
 /**
  * Desktop: WASD, Shift, Space, pointer-lock mouse look.
  * Mobile: virtual joystick (left), swipe-look (right), sprint/jump buttons.
  */
 export class InputManager {
-  readonly state: InputState = { moveX: 0, moveY: 0, sprint: false, jump: false, walk: false };
-  private zoom = 0;
+  readonly state: InputState = { moveX: 0, moveY: 0, sprint: false, jump: false, walk: false, fire: false, aim: false };
+  private zoom = 0; private mouseFire = false; private mouseAim = false; private touchFire = false; private touchAim = false; private reloadEdge = false;
   private keys = new Set<string>();
   private lookX = 0; private lookY = 0;
   private joyId = -1; private lookId = -1; private joy = { x: 0, y: 0, vx: 0, vy: 0 };
@@ -16,12 +16,15 @@ export class InputManager {
   enabled = false;
 
   constructor(private canvas: HTMLCanvasElement) {
-    addEventListener("keydown", e => { this.keys.add(e.code); if (e.code === "Space") e.preventDefault(); });
+    addEventListener("keydown", e => { this.keys.add(e.code); if (e.code === "KeyR") this.reloadEdge = true; if (e.code === "Space") e.preventDefault(); });
     addEventListener("keyup", e => this.keys.delete(e.code));
     addEventListener("blur", () => this.keys.clear());
     addEventListener("mousemove", e => { if (this.enabled && document.pointerLockElement === canvas) { this.lookX += e.movementX; this.lookY += e.movementY; } });
     canvas.addEventListener("click", () => { if (this.enabled && !("ontouchstart" in window)) canvas.requestPointerLock?.(); });
     canvas.addEventListener("wheel", e => { this.zoom += e.deltaY; }, { passive: true });
+    addEventListener("mousedown", e => { if (document.pointerLockElement !== canvas) return; if (e.button === 0) this.mouseFire = true; if (e.button === 2) this.mouseAim = true; });
+    addEventListener("mouseup", e => { if (e.button === 0) this.mouseFire = false; if (e.button === 2) this.mouseAim = false; });
+    canvas.addEventListener("contextmenu", e => e.preventDefault());
     this.bindTouch();
   }
 
@@ -33,6 +36,8 @@ export class InputManager {
       for (const t of ["pointerup", "pointercancel", "pointerleave"]) b.addEventListener(t, () => set(false));
     };
     hold("btn-sprint", v => (this.touchSprint = v)); hold("btn-jump", v => (this.touchJump = v));
+    hold("btn-fire", v => (this.touchFire = v)); hold("btn-aim", v => (this.touchAim = v));
+    document.getElementById("btn-reload")!.addEventListener("pointerdown", e => { e.stopPropagation(); this.reloadEdge = true; });
     const R = 50;
     this.canvas.addEventListener("pointerdown", e => {
       if (e.pointerType === "mouse" || !this.enabled) return;
@@ -68,8 +73,12 @@ export class InputManager {
     this.state.moveX = this.enabled ? x : 0; this.state.moveY = this.enabled ? y : 0;
     this.state.sprint = this.enabled && (this.keys.has("ShiftLeft") || this.keys.has("ShiftRight") || this.touchSprint);
     this.state.walk = this.enabled && (this.keys.has("ControlLeft") || this.keys.has("AltLeft"));
+    this.state.fire = this.enabled && (this.mouseFire || this.touchFire); this.state.aim = this.enabled && (this.mouseAim || this.touchAim);
     this.state.jump = this.enabled && (this.keys.has("Space") || this.touchJump);
   }
+
+  /** True once per reload key/button press. */
+  consumeReload(): boolean { const r = this.reloadEdge; this.reloadEdge = false; return r; }
 
   /** Returns accumulated mouse-wheel delta since the last call (camera zoom). */
   consumeZoom(): number { const z = this.zoom; this.zoom = 0; return z; }
